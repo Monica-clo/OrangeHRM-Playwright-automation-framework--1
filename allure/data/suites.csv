@@ -1,37 +1,37 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"DELETE /api/users/{id} answers 204 with no body at all.","3197","test_delete_user","tests.api","2026-09-20","passed","2026-09-20","","test_reqres_api_contract","",""
-"PATCH /api/users/{id} updates only the fields that were sent.","3125","test_update_user_patch","tests.api","2026-09-20","passed","2026-09-20","","test_reqres_api_contract","",""
-"WORKFLOW 3 - edit an employee: search by Employee Id, update the Personal Details and the
-    profile photo, prove both were persisted, then mirror the update with PUT /api/users/{id}.","41644","test_workflow_3_edit_employee[chromium]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
+"WORKFLOW 5 - close the lifecycle: set Job Title and Employment Status, cross-check the
+    Employee List columns, delete the employee in the UI, confirm the deletion through
+    DELETE /api/users/{id} -> 204, and log out.","35839","test_workflow_5_job_details_delete_and_logout[firefox]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
 "WORKFLOW 2 - log in, create an employee in PIM (name, Employee Id, profile photo, login
-    details) and mirror the created record through POST /api/users.","34080","test_workflow_2_create_employee[chromium]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
-"PUT /api/users/{id} replaces every field and stamps updatedAt.","3274","test_update_user_put","tests.api","2026-09-20","passed","2026-09-20","","test_reqres_api_contract","",""
-"POST /api/login without a password is refused with 400 and leaks no token.","91","test_login_without_password_is_rejected","tests.api","2026-09-20","passed","2026-09-20","","test_reqres_api_contract","",""
+    details) and mirror the created record through POST /api/users.","18728","test_workflow_2_create_employee[firefox]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
+"WORKFLOW 4 - add one more set of details to the same employee: the Contact Details tab
+    (address, telephone, email), verified after a reload and mirrored with PATCH /api/users/{id}.","25485","test_workflow_4_add_contact_details[chromium]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
+"POST /api/login without a password is refused with 400 and leaks no token.","95","test_login_without_password_is_rejected","tests.api","2026-09-20","passed","2026-09-20","","test_reqres_api_contract","",""
+"DELETE /api/users/{id} answers 204 with no body at all.","3195","test_delete_user","tests.api","2026-09-20","passed","2026-09-20","","test_reqres_api_contract","",""
 "WORKFLOW 5 - close the lifecycle: set Job Title and Employment Status, cross-check the
     Employee List columns, delete the employee in the UI, confirm the deletion through
-    DELETE /api/users/{id} -> 204, and log out.","31558","test_workflow_5_job_details_delete_and_logout[chromium]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
-"WORKFLOW 5 - close the lifecycle: set Job Title and Employment Status, cross-check the
-    Employee List columns, delete the employee in the UI, confirm the deletion through
-    DELETE /api/users/{id} -> 204, and log out.","36680","test_workflow_5_job_details_delete_and_logout[firefox]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
-"POST /api/users echoes the payload and generates an id plus a createdAt timestamp.","87","test_create_user","tests.api","2026-09-20","passed","2026-09-20","","test_reqres_api_contract","",""
+    DELETE /api/users/{id} -> 204, and log out.","33728","test_workflow_5_job_details_delete_and_logout[chromium]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
 "WORKFLOW 1 (negative) - authentication must be REJECTED, on the UI and on the API.
 
     UI : a valid user name with a wrong password shows 'Invalid credentials', keeps the user on
          the login page and creates no session (a protected URL still redirects to login).
     API: POST /api/login without a password -> 400 with the exact error text and no token.
-    ","9049","test_workflow_1_negative_rejected_authentication[firefox]","tests.e2e","2026-09-20","passed","2026-09-20","","test_employee_workflows","",""
+    ","9701","test_workflow_1_negative_rejected_authentication[chromium]","tests.e2e","2026-09-20","passed","2026-09-20","","test_employee_workflows","",""
+"PATCH /api/users/{id} updates only the fields that were sent.","3129","test_update_user_patch","tests.api","2026-09-20","passed","2026-09-20","","test_reqres_api_contract","",""
+"POST /api/login with valid credentials returns a usable bearer token.","255","test_login_returns_a_token","tests.api","2026-09-20","passed","2026-09-20","","test_reqres_api_contract","",""
 "WORKFLOW 3 - edit an employee: search by Employee Id, update the Personal Details and the
-    profile photo, prove both were persisted, then mirror the update with PUT /api/users/{id}.","43040","test_workflow_3_edit_employee[firefox]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
+    profile photo, prove both were persisted, then mirror the update with PUT /api/users/{id}.","57184","test_workflow_3_edit_employee[chromium]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
 "WORKFLOW 4 - add one more set of details to the same employee: the Contact Details tab
-    (address, telephone, email), verified after a reload and mirrored with PATCH /api/users/{id}.","24877","test_workflow_4_add_contact_details[chromium]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
-"POST /api/login with valid credentials returns a usable bearer token.","134","test_login_returns_a_token","tests.api","2026-09-20","passed","2026-09-20","","test_reqres_api_contract","",""
+    (address, telephone, email), verified after a reload and mirrored with PATCH /api/users/{id}.","27530","test_workflow_4_add_contact_details[firefox]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
 "WORKFLOW 1 (negative) - authentication must be REJECTED, on the UI and on the API.
 
     UI : a valid user name with a wrong password shows 'Invalid credentials', keeps the user on
          the login page and creates no session (a protected URL still redirects to login).
     API: POST /api/login without a password -> 400 with the exact error text and no token.
-    ","7377","test_workflow_1_negative_rejected_authentication[chromium]","tests.e2e","2026-09-20","passed","2026-09-20","","test_employee_workflows","",""
+    ","8582","test_workflow_1_negative_rejected_authentication[firefox]","tests.e2e","2026-09-20","passed","2026-09-20","","test_employee_workflows","",""
+"PUT /api/users/{id} replaces every field and stamps updatedAt.","3265","test_update_user_put","tests.api","2026-09-20","passed","2026-09-20","","test_reqres_api_contract","",""
+"POST /api/users echoes the payload and generates an id plus a createdAt timestamp.","97","test_create_user","tests.api","2026-09-20","passed","2026-09-20","","test_reqres_api_contract","",""
+"WORKFLOW 3 - edit an employee: search by Employee Id, update the Personal Details and the
+    profile photo, prove both were persisted, then mirror the update with PUT /api/users/{id}.","43676","test_workflow_3_edit_employee[firefox]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
 "WORKFLOW 2 - log in, create an employee in PIM (name, Employee Id, profile photo, login
-    details) and mirror the created record through POST /api/users.","20573","test_workflow_2_create_employee[firefox]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
-"WORKFLOW 4 - add one more set of details to the same employee: the Contact Details tab
-    (address, telephone, email), verified after a reload and mirrored with PATCH /api/users/{id}.","29425","test_workflow_4_add_contact_details[firefox]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
+    details) and mirror the created record through POST /api/users.","24632","test_workflow_2_create_employee[chromium]","tests.e2e","2026-09-20","failed","2026-09-20","","test_employee_workflows","",""
