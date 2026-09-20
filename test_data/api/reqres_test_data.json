@@ -1,0 +1,41 @@
+{
+  "auth_ui": {
+    "invalid_login": {
+      "password": "wrong-password-123",
+      "expected_error": "Invalid credentials"
+    }
+  },
+  "auth_apis": {
+    "login": {
+      "endpoint": "/api/login",
+      "payload": {"email": "eve.holt@reqres.in", "password": "cityslicka"},
+      "expected_status": 200
+    },
+    "login_missing_password": {
+      "endpoint": "/api/login",
+      "payload": {"email": "eve.holt@reqres.in"},
+      "expected_status": 400,
+      "expected_error": "Missing password"
+    }
+  },
+  "user_apis": {
+    "create_user": {
+      "payload": {"name": "morpheus", "job": "leader"},
+      "expected_status": 201
+    },
+    "update_user_put": {
+      "user_id": 2,
+      "payload": {"name": "morpheus", "job": "zion resident"},
+      "expected_status": 200
+    },
+    "update_user_patch": {
+      "user_id": 2,
+      "payload": {"job": "zion resident"},
+      "expected_status": 200
+    },
+    "delete_user": {
+      "user_id": 2,
+      "expected_status": 204
+    }
+  }
+}

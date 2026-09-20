@@ -1,0 +1,30 @@
+{
+  "employee": {
+    "test_id": "profile_update",
+    "first_name": "Monica",
+    "last_name": "N",
+    "employee_id_prefix": "PD",
+    "profile_picture": "test_data/images/employee_photo.png",
+    "create_login_details": false
+  },
+  "personal_details": {
+    "other_id": "OID-1001",
+    "drivers_license_number": "DL-2026-000123",
+    "nationality": "Indian",
+    "marital_status": "Single",
+    "gender": "Female"
+  },
+  "contact_details": {
+    "street_1": "221 Test Street",
+    "street_2": "Automation Block",
+    "city": "Test City",
+    "state_province": "Test State",
+    "zip_postal_code": "560001",
+    "country": "India",
+    "home_telephone": "0801234567",
+    "mobile": "9876543210",
+    "work_telephone": "0807654321",
+    "work_email_domain": "example.com",
+    "other_email_domain": "example.org"
+  }
+}

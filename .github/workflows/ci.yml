@@ -1,0 +1,231 @@
+name: CI - OrangeHRM E2E workflows (UI + API) and k6 performance
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "30 2 * * *"            # nightly (UTC): E2E workflows + k6 performance
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Which suites to run"
+        type: choice
+        options: [all, api, e2e, performance]
+        default: all
+      marker:
+        description: "E2E tag to execute (tagging strategy)"
+        type: choice
+        options: [workflow, positive, negative, smoke, regression]
+        default: workflow
+      browsers:
+        description: "Browsers for the E2E workflows (one parallel job per browser)"
+        type: choice
+        options: ['["chromium","firefox"]', '["chromium"]', '["firefox"]', '["chromium","firefox","webkit"]']
+        default: '["chromium","firefox"]'
+      workers:
+        description: "Parallel workers inside each browser job (pytest-xdist -n)"
+        type: choice
+        options: ["1", "2", "4", "auto"]
+        default: "2"
+      data_source:
+        description: "Employee test data source"
+        type: choice
+        options: [json, csv]
+        default: json
+      base_url:
+        description: "OrangeHRM environment URL (empty = the value in config/config.yaml)"
+        type: string
+        default: ""
+      perf_profile:
+        description: "k6 profile (load needs REQRES_API_KEY)"
+        type: choice
+        options: [smoke, load]
+        default: smoke
+
+permissions:
+  contents: write          # only to publish the Allure report to gh-pages
+  checks: write
+  pull-requests: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME || 'Admin' }}
+  ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD || 'admin123' }}
+  REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
+
+jobs:
+  # ---------------------------------------------------------------- API CONTRACT TESTS
+  api-tests:
+    name: API contract tests (ReqRes, no browser)
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.suite == 'all' || inputs.suite == 'api' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run API contract tests
+        env:
+          REQRES_SKIP_ON_QUOTA: "true"
+        run: |
+          python -m pytest -m api \
+            --html=reports/html/api-report.html \
+            --junitxml=reports/junit/api-results.xml
+      - name: Publish API test results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: reports/junit/api-results.xml
+          check_name: "API contract test results"
+      - name: Upload API reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-reports-${{ github.run_number }}
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 14
+
+  # ---------------------------------------------------------------- E2E WORKFLOWS
+  e2e-tests:
+    name: E2E workflows (${{ matrix.browser }}, ${{ inputs.marker || 'workflow' }})
+    needs: [api-tests]
+    # Runs when the API suite passed, and also when it was deliberately skipped
+    # (suite=e2e), but never when the API contract is broken.
+    if: >-
+      ${{ !cancelled()
+          && (needs.api-tests.result == 'success' || needs.api-tests.result == 'skipped')
+          && (github.event_name != 'workflow_dispatch' || inputs.suite == 'all' || inputs.suite == 'e2e') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false                                   # parallelisation 1: one job per browser
+      matrix:
+        browser: ${{ fromJSON(inputs.browsers || '["chromium","firefox"]') }}
+    env:
+      BROWSER: ${{ matrix.browser }}
+      MARKER: ${{ inputs.marker || 'workflow' }}
+      WORKERS: ${{ inputs.workers || '2' }}              # parallelisation 2: pytest-xdist inside each job
+      DATA_SOURCE: ${{ inputs.data_source || 'json' }}
+      ORANGEHRM_BASE_URL: ${{ inputs.base_url }}
+      RECORD_VIDEO: "true"
+      TRACING: retain-on-failure
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Install Playwright browser
+        run: python -m playwright install --with-deps "$BROWSER"
+      - name: Run E2E workflows
+        run: |
+          python -m pytest -m "$MARKER" --browser "$BROWSER" -n "$WORKERS" \
+            --reruns 1 --reruns-delay 5 \
+            --html="reports/html/e2e-report-$BROWSER.html" \
+            --junitxml="reports/junit/e2e-results-$BROWSER.xml"
+      - name: Publish test results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: reports/junit/e2e-results-*.xml
+          check_name: "E2E workflow results (${{ matrix.browser }})"
+      - name: Upload reports, videos, screenshots and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-reports-${{ matrix.browser }}-${{ github.run_number }}
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 14
+
+  # ---------------------------------------------------------------- K6 PERFORMANCE
+  performance-tests:
+    name: k6 performance (${{ inputs.perf_profile || 'smoke' }})
+    # Not run on every push: the free ReqRes tier has a small daily request quota.
+    if: >-
+      ${{ github.event_name == 'schedule' ||
+          (github.event_name == 'workflow_dispatch' &&
+           (inputs.suite == 'all' || inputs.suite == 'performance')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: grafana/setup-k6-action@v1
+      - name: Run k6 (thresholds decide pass/fail)
+        env:
+          PERF_PROFILE: ${{ inputs.perf_profile || 'smoke' }}
+        run: |
+          mkdir -p reports/performance
+          k6 run performance/k6/api-performance.js
+      - name: Add k6 summary to the job page
+        if: always()
+        run: |
+          echo "### k6 performance" >> "$GITHUB_STEP_SUMMARY"
+          echo "Profile: \`${PERF_PROFILE:-smoke}\`. Download the **performance-reports** artifact for \`k6-report.html\`." >> "$GITHUB_STEP_SUMMARY"
+        env:
+          PERF_PROFILE: ${{ inputs.perf_profile || 'smoke' }}
+      - name: Upload k6 reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-reports-${{ github.run_number }}
+          path: reports/performance/
+          if-no-files-found: warn
+          retention-days: 14
+
+  # ---------------------------------------------------------------- COMBINED ALLURE REPORT
+  allure-report:
+    name: Combined Allure report
+    needs: [e2e-tests]
+    if: ${{ always() && !cancelled() && needs.e2e-tests.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all test reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*-reports-*"
+          path: downloaded
+      - name: Merge Allure results
+        run: |
+          mkdir -p allure-results
+          find downloaded -type d -name allure-results -exec sh -c 'cp -r "$1"/. allure-results/' _ {} \;
+          ls allure-results | head
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Generate Allure report
+        run: |
+          npm install -g allure-commandline --silent
+          allure generate allure-results -o allure-report --clean
+      - name: Upload Allure report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-${{ github.run_number }}
+          path: allure-report/
+          retention-days: 14
+      - name: Publish to GitHub Pages (main branch only)
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+        continue-on-error: true
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report
+          destination_dir: allure

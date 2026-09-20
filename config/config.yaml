@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------------------
+# Central framework configuration.
+# Every value can be overridden with an environment variable (see README.md),
+# which is how the CI/CD pipeline injects secrets and switches options.
+# ---------------------------------------------------------------------------
+
+app:
+  base_url: "https://opensource-demo.orangehrmlive.com"
+  login_path: "/web/index.php/auth/login"
+  dashboard_path: "/web/index.php/dashboard/index"
+
+reqres:                      # public test API - only POST / PUT / PATCH / DELETE / delayed GET on /api/users
+  base_url: "https://reqres.in"
+  api_key: ""                # optional - REQRES_API_KEY env var; sent as x-api-key when set
+  users_min_interval_sec: 3.2   # /api/users is limited to 20 requests/minute per IP
+  default_min_interval_sec: 0.0
+  max_retries_on_429: 3      # short burst limits only - a used-up DAILY quota is never retried
+  skip_on_quota: false       # REQRES_SKIP_ON_QUOTA=true -> report "skipped" instead of "failed" when the daily quota is used up
+  timeout_ms: 30000
+  max_response_ms: 5000      # API_MAX_RESPONSE_MS - every API response in the E2E workflows must be faster than this
+
+credentials:                 # Override with ORANGEHRM_USERNAME / ORANGEHRM_PASSWORD
+  username: "Admin"
+  password: "admin123"
+
+timeouts:                    # milliseconds
+  default: 20000             # element actions (click, fill ...)
+  navigation: 45000          # page.goto / reload
+  expect: 20000              # auto-retrying assertions
+
+browser:
+  name: "chromium"           # chromium | firefox | webkit, or a list like "chromium,firefox" (BROWSER env var)
+  # Installed browser to use per engine (empty = Playwright's own build):
+  #   chromium: "chrome" (Google Chrome) or "msedge" (Microsoft Edge)
+  #   firefox : "moz-firefox" (installed Mozilla Firefox - experimental, no video recording)
+  channels:
+    chromium: ""             # CHROMIUM_CHANNEL
+    firefox: ""              # FIREFOX_CHANNEL
+  viewport_width: 1366
+  viewport_height: 768
+  record_video: true         # UI screen recording (RECORD_VIDEO=false to disable)
+  video_captions: true       # show the current step on top of the recorded screen (VIDEO_CAPTIONS)
+  slow_mo_ms: 0              # slow every action down for a watchable recording, e.g. 500 (SLOW_MO_MS)
+  tracing: "retain-on-failure"   # on | off | retain-on-failure
+
+
+test_data:
+  source: "json"             # json | csv   (DATA_SOURCE env var)
+  json_file: "test_data/employees.json"
+  csv_file: "test_data/employees.csv"
+  profile_file: "test_data/employee_profile.json"
+  reqres_file: "test_data/api/reqres_test_data.json"
+  cleanup_created_employees: true    # delete employees left behind by failed tests
+
+reports:
+  root: "reports"

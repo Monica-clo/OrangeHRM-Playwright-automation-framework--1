@@ -1,0 +1,29 @@
+[
+  {
+    "test_id": "fulltime_qa_engineer_with_login",
+    "first_name": "Monica",
+    "middle_name": "",
+    "last_name": "N",
+    "employee_id_prefix": "QA",
+    "profile_picture": "test_data/images/employee_photo.png",
+    "edit_profile_picture": "test_data/images/profile_picture.png",
+    "create_login_details": true,
+    "username_prefix": "monica",
+    "password": "Monica@12345",
+    "login_status": "Enabled",
+    "job_title": "QA Engineer",
+    "employment_status": "Full-Time Permanent"
+  },
+  {
+    "test_id": "contract_software_engineer_no_login",
+    "first_name": "Rahul",
+    "middle_name": "Kumar",
+    "last_name": "Verma",
+    "employee_id_prefix": "SE",
+    "profile_picture": "test_data/images/employee_photo.png",
+    "edit_profile_picture": "test_data/images/profile_picture.png",
+    "create_login_details": false,
+    "job_title": "Software Engineer",
+    "employment_status": "Full-Time Contract"
+  }
+]

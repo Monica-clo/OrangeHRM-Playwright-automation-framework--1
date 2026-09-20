@@ -1,0 +1,3 @@
+test_id,first_name,middle_name,last_name,employee_id_prefix,profile_picture,edit_profile_picture,create_login_details,username_prefix,password,login_status,job_title,employment_status
+csv_qa_lead_with_login,Priya,,Shah,QL,test_data/images/employee_photo.png,test_data/images/profile_picture.png,true,priya,Priya@12345,Enabled,QA Lead,Full-Time Probation
+csv_freelance_account_assistant,John,Paul,Mathew,AA,test_data/images/employee_photo.png,test_data/images/profile_picture.png,false,,,,Account Assistant,Freelance

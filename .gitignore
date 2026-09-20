@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+
+# Test output
+reports/
+test-results/
+allure-report/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Keep committed evidence (HTML report + video) - see tools/collect_evidence.py
+!evidence/
