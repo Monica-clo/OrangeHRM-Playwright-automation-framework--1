@@ -1,4 +1,0 @@
-INFO     orangehrm.step:reporting.py:19 ========== STEP: PATCH /api/users/2 with {'job': 'zion resident'} ==========
-INFO     orangehrm.api.ReqRes:base_client.py:140 ReqRes -> PATCH https://reqres.in/api/users/2 params=- body={"job": "zion resident"}
-INFO     orangehrm.api.ReqRes:base_client.py:175 ReqRes <- PATCH https://reqres.in/api/users/2 -> 200 (117 ms) | body={"job":"zion resident","updatedAt":"2026-09-21T08:08:55.497Z","_meta":{"powered_by":"ReqRes","docs_url":"https://app.reqres.in/documentation","upgrade_url":"https://app.reqres.in/upgrade","example_url":"https://app.reqres.in/examples/notes-app","variant":"v1_b","message":"This is a read-only demo endpoint. Sign up to create your own collections with full CRUD and auth.","cta":{"label":"Get started","url":"https://app.reqres.in/upgrade"},"context":"legacy_success"}}
-INFO     orangehrm.step:reporting.py:19 ========== STEP: Validate status, schema, echoed payload and updatedAt ==========
