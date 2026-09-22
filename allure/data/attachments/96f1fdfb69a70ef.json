@@ -1,0 +1,30 @@
+{
+  "request": {
+    "method": "PATCH",
+    "url": "https://reqres.in/api/users/2",
+    "body": {
+      "job": "zion resident"
+    }
+  },
+  "response": {
+    "status": 200,
+    "elapsed_ms": 111,
+    "body": {
+      "job": "zion resident",
+      "updatedAt": "2026-09-22T08:59:59.465Z",
+      "_meta": {
+        "powered_by": "ReqRes",
+        "docs_url": "https://app.reqres.in/documentation",
+        "upgrade_url": "https://app.reqres.in/upgrade",
+        "example_url": "https://app.reqres.in/examples/notes-app",
+        "variant": "v1_a",
+        "message": "Your data persists here. Add auth, logs, and custom schemas to build a real backend.",
+        "cta": {
+          "label": "See example app",
+          "url": "https://app.reqres.in/examples/notes-app"
+        },
+        "context": "legacy_success"
+      }
+    }
+  }
+}
