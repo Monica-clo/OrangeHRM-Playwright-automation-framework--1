@@ -1,0 +1,29 @@
+﻿FROM jenkins/jenkins:lts
+
+USER root
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3 python3-pip python3-venv \
+        curl gnupg ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://dl.k6.io/key.gpg \
+        | gpg --dearmor -o /usr/share/keyrings/k6-archive-keyring.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" \
+        > /etc/apt/sources.list.d/k6.list \
+    && apt-get update && apt-get install -y --no-install-recommends k6 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libnss3 libnspr4 libdbus-1-3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
+        libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+        libgbm1 libpango-1.0-0 libcairo2 libasound2 libatspi2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN jenkins-plugin-cli --plugins \
+        workflow-aggregator git junit htmlpublisher \
+        credentials-binding timestamper ws-cleanup
+
+USER jenkins
+
+ENV PLAYWRIGHT_BROWSERS_PATH=/var/jenkins_home/pw-browsers
