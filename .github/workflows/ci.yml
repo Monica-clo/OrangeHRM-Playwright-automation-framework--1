@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: "30 2 * * *"            # nightly (UTC): E2E workflows + k6 performance
+    - cron: "30 2 * * *"
   workflow_dispatch:
     inputs:
       suite:
@@ -25,10 +25,10 @@ on:
         options: ['["chromium","firefox"]', '["chromium"]', '["firefox"]', '["chromium","firefox","webkit"]']
         default: '["chromium","firefox"]'
       workers:
-        description: "Parallel workers inside each browser job (pytest-xdist -n)"
+        description: "Parallel workers inside each browser job (OrangeHRM demo data is shared)"
         type: choice
         options: ["1", "2", "4", "auto"]
-        default: "2"
+        default: "1"
       data_source:
         description: "Employee test data source"
         type: choice
@@ -45,7 +45,7 @@ on:
         default: smoke
 
 permissions:
-  contents: write          # only to publish the Allure report to gh-pages
+  contents: write
   checks: write
   pull-requests: write
 
@@ -60,7 +60,6 @@ env:
   REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
 
 jobs:
-  # ---------------------------------------------------------------- API CONTRACT TESTS
   api-tests:
     name: API contract tests (ReqRes, no browser)
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.suite == 'all' || inputs.suite == 'api' }}
@@ -80,10 +79,8 @@ jobs:
         env:
           REQRES_SKIP_ON_QUOTA: "true"
         run: |
-          python -m pytest -m api \
-            --html=reports/html/api-report.html \
-            --junitxml=reports/junit/api-results.xml
-      - name: Publish API test results
+          python -m pytest -m api --html=reports/html/api-report.html --junitxml=reports/junit/api-results.xml
+      - name: Publish test results
         if: always()
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
@@ -98,12 +95,9 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  # ---------------------------------------------------------------- E2E WORKFLOWS
   e2e-tests:
     name: E2E workflows (${{ matrix.browser }}, ${{ inputs.marker || 'workflow' }})
     needs: [api-tests]
-    # Runs when the API suite passed, and also when it was deliberately skipped
-    # (suite=e2e), but never when the API contract is broken.
     if: >-
       ${{ !cancelled()
           && (needs.api-tests.result == 'success' || needs.api-tests.result == 'skipped')
@@ -111,13 +105,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
-      fail-fast: false                                   # parallelisation 1: one job per browser
+      fail-fast: false
       matrix:
         browser: ${{ fromJSON(inputs.browsers || '["chromium","firefox"]') }}
     env:
       BROWSER: ${{ matrix.browser }}
       MARKER: ${{ inputs.marker || 'workflow' }}
-      WORKERS: ${{ inputs.workers || '2' }}              # parallelisation 2: pytest-xdist inside each job
+      # The public OrangeHRM demo server is shared mutable state. Running the
+      # workflows concurrently causes searches/saves to race across sessions.
+      WORKERS: ${{ inputs.workers || '1' }}
       DATA_SOURCE: ${{ inputs.data_source || 'json' }}
       ORANGEHRM_BASE_URL: ${{ inputs.base_url }}
       RECORD_VIDEO: "true"
@@ -155,10 +151,8 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  # ---------------------------------------------------------------- K6 PERFORMANCE
   performance-tests:
     name: k6 performance (${{ inputs.perf_profile || 'smoke' }})
-    # Not run on every push: the free ReqRes tier has a small daily request quota.
     if: >-
       ${{ github.event_name == 'schedule' ||
           (github.event_name == 'workflow_dispatch' &&
@@ -190,7 +184,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  # ---------------------------------------------------------------- COMBINED ALLURE REPORT
   allure-report:
     name: Combined Allure report
     needs: [e2e-tests]
