@@ -1,0 +1,33 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://reqres.in/api/users",
+    "body": {
+      "name": "morpheus",
+      "job": "leader"
+    }
+  },
+  "response": {
+    "status": 201,
+    "elapsed_ms": 86,
+    "body": {
+      "name": "morpheus",
+      "job": "leader",
+      "id": "445",
+      "createdAt": "2026-09-23T07:55:03.926Z",
+      "_meta": {
+        "powered_by": "ReqRes",
+        "docs_url": "https://app.reqres.in/documentation",
+        "upgrade_url": "https://app.reqres.in/upgrade",
+        "example_url": "https://app.reqres.in/examples/notes-app",
+        "variant": "v1_a",
+        "message": "Your data persists here. Add auth, logs, and custom schemas to build a real backend.",
+        "cta": {
+          "label": "See example app",
+          "url": "https://app.reqres.in/examples/notes-app"
+        },
+        "context": "legacy_success"
+      }
+    }
+  }
+}
