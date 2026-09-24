@@ -23,7 +23,7 @@ on:
         description: "Browsers for the E2E workflows (one parallel job per browser)"
         type: choice
         options: ['["chromium","firefox"]', '["chromium"]', '["firefox"]', '["chromium","firefox","webkit"]']
-        default: '["chromium","firefox"]'
+        default: '["chromium"]'
       workers:
         description: "Parallel workers inside each browser job (OrangeHRM demo data is shared)"
         type: choice
@@ -55,8 +55,10 @@ concurrency:
 
 env:
   PYTHON_VERSION: "3.12"
-  ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME || 'Admin' }}
-  ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD || 'admin123' }}
+  # Prefer repo/org variables or GitHub secrets for the demo account. The public
+  # OrangeHRM demo is shared and its credentials can be reset by other users.
+  ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME || vars.ORANGEHRM_USERNAME || 'Admin' }}
+  ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD || vars.ORANGEHRM_PASSWORD || 'admin123' }}
   REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
 
 jobs:
@@ -107,7 +109,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: ${{ fromJSON(inputs.browsers || '["chromium","firefox"]') }}
+        browser: ${{ fromJSON(inputs.browsers || '["chromium"]') }}
     env:
       BROWSER: ${{ matrix.browser }}
       MARKER: ${{ inputs.marker || 'workflow' }}
@@ -130,6 +132,12 @@ jobs:
           pip install -r requirements.txt
       - name: Install Playwright browser
         run: python -m playwright install --with-deps "$BROWSER"
+      - name: Validate OrangeHRM credentials
+        run: |
+          if [ -z "${ORANGEHRM_USERNAME}" ] || [ -z "${ORANGEHRM_PASSWORD}" ]; then
+            echo "::error::ORANGEHRM_USERNAME and ORANGEHRM_PASSWORD must be set in secrets or repository variables."
+            exit 1
+          fi
       - name: Run E2E workflows
         run: |
           python -m pytest -m "$MARKER" --browser "$BROWSER" -n "$WORKERS" \
