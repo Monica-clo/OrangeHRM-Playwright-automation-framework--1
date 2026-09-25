@@ -1,4 +1,0 @@
-INFO     orangehrm.step:reporting.py:19 ========== STEP: POST /api/login without the password field ==========
-INFO     orangehrm.api.ReqRes:base_client.py:140 ReqRes -> POST https://reqres.in/api/login params=- body={"email": "eve.holt@reqres.in"}
-INFO     orangehrm.api.ReqRes:base_client.py:175 ReqRes <- POST https://reqres.in/api/login -> 400 (90 ms) | body={"error":"Missing password"}
-INFO     orangehrm.step:reporting.py:19 ========== STEP: Validate status 400, the error text and that no token is returned ==========

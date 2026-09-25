@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://reqres.in/api/login",
+    "body": {
+      "email": "eve.holt@reqres.in"
+    }
+  },
+  "response": {
+    "status": 400,
+    "elapsed_ms": 116,
+    "body": {
+      "error": "Missing password"
+    }
+  }
+}

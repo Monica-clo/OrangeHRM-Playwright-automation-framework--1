@@ -1,0 +1,4 @@
+INFO     orangehrm.step:reporting.py:19 ========== STEP: DELETE /api/users/2 ==========
+INFO     orangehrm.api.ReqRes:base_client.py:140 ReqRes -> DELETE https://reqres.in/api/users/2 params=- body=-
+INFO     orangehrm.api.ReqRes:base_client.py:175 ReqRes <- DELETE https://reqres.in/api/users/2 -> 204 (110 ms) | body=<empty>
+INFO     orangehrm.step:reporting.py:19 ========== STEP: Validate status 204 and an empty body ==========
