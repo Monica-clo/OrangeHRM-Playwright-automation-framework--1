@@ -100,9 +100,12 @@ jobs:
   e2e-tests:
     name: E2E workflows (${{ matrix.browser }}, ${{ inputs.marker || 'workflow' }})
     needs: [api-tests]
+    # UI tests are independent of ReqRes. Run them even when the API job fails.
     if: >-
       ${{ !cancelled()
-          && (needs.api-tests.result == 'success' || needs.api-tests.result == 'skipped')
+          && (needs.api-tests.result == 'success'
+              || needs.api-tests.result == 'failure'
+              || needs.api-tests.result == 'skipped')
           && (github.event_name != 'workflow_dispatch' || inputs.suite == 'all' || inputs.suite == 'e2e') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -113,8 +116,7 @@ jobs:
     env:
       BROWSER: ${{ matrix.browser }}
       MARKER: ${{ inputs.marker || 'workflow' }}
-      # The public OrangeHRM demo server is shared mutable state. Running the
-      # workflows concurrently causes searches/saves to race across sessions.
+      # Keep this at 1 for the public shared OrangeHRM demo environment.
       WORKERS: ${{ inputs.workers || '1' }}
       DATA_SOURCE: ${{ inputs.data_source || 'json' }}
       ORANGEHRM_BASE_URL: ${{ inputs.base_url }}
@@ -138,11 +140,28 @@ jobs:
             echo "::error::ORANGEHRM_USERNAME and ORANGEHRM_PASSWORD must be set in secrets or repository variables."
             exit 1
           fi
+      - name: Validate OrangeHRM availability
+        run: |
+          python - <<'PY'
+          import os
+          import urllib.request
+
+          base_url = os.environ.get(
+              "ORANGEHRM_BASE_URL",
+              "https://opensource-demo.orangehrmlive.com",
+          ).rstrip("/")
+          url = f"{base_url}/web/index.php/auth/login"
+          print(f"Checking {url}")
+          response = urllib.request.urlopen(url, timeout=30)
+          print(f"HTTP status: {response.status}")
+          PY
       - name: Run E2E workflows
         run: |
+          mkdir -p reports/html reports/junit
           python -m pytest -m "$MARKER" --browser "$BROWSER" -n "$WORKERS" \
-            --reruns 1 --reruns-delay 5 \
+            --reruns 2 --reruns-delay 5 \
             --html="reports/html/e2e-report-$BROWSER.html" \
+            --self-contained-html \
             --junitxml="reports/junit/e2e-results-$BROWSER.xml"
       - name: Publish test results
         if: always()
