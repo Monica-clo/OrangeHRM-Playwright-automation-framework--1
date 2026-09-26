@@ -1,20 +1,17 @@
 {
   "request": {
     "method": "POST",
-    "url": "https://reqres.in/api/users",
+    "url": "https://reqres.in/api/login",
     "body": {
-      "name": "morpheus",
-      "job": "leader"
+      "email": "eve.holt@reqres.in",
+      "password": "cityslicka"
     }
   },
   "response": {
-    "status": 201,
-    "elapsed_ms": 111,
+    "status": 200,
+    "elapsed_ms": 215,
     "body": {
-      "name": "morpheus",
-      "job": "leader",
-      "id": "756",
-      "createdAt": "2026-09-25T08:18:03.588Z",
+      "token": "QpwL5tke4Pnpja7X4",
       "_meta": {
         "powered_by": "ReqRes",
         "docs_url": "https://app.reqres.in/documentation",

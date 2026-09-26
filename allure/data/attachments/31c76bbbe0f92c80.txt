@@ -1,5 +1,0 @@
-INFO     orangehrm.step:reporting.py:19 ========== STEP: POST /api/users with {'name': 'morpheus', 'job': 'leader'} ==========
-INFO     orangehrm.api.ReqRes:base_client.py:140 ReqRes -> POST https://reqres.in/api/users params=- body={"name": "morpheus", "job": "leader"}
-INFO     orangehrm.api.ReqRes:base_client.py:175 ReqRes <- POST https://reqres.in/api/users -> 201 (111 ms) | body={"name":"morpheus","job":"leader","id":"756","createdAt":"2026-09-25T08:18:03.588Z","_meta":{"powered_by":"ReqRes","docs_url":"https://app.reqres.in/documentation","upgrade_url":"https://app.reqres.in/upgrade","example_url":"https://app.reqres.in/examples/notes-app","variant":"v1_b","message":"This is a read-only demo endpoint. Sign up to create your own collections with full CRUD and auth.","cta":{"label":"Get started","url":"https://app.reqres.in/upgrade"},"context":"legacy_success"}}
-INFO     orangehrm.step:reporting.py:19 ========== STEP: Validate status, schema, echoed payload, generated id and createdAt ==========
-INFO     orangehrm.test.api:test_reqres_api_contract.py:107 Created user id 756

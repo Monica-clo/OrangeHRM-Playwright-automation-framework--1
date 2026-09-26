@@ -1,5 +1,0 @@
-INFO     orangehrm.step:reporting.py:19 ========== STEP: POST /api/login as eve.holt@reqres.in ==========
-INFO     orangehrm.api.ReqRes:base_client.py:140 ReqRes -> POST https://reqres.in/api/login params=- body={"email": "eve.holt@reqres.in", "password": "cityslicka"}
-INFO     orangehrm.api.ReqRes:base_client.py:175 ReqRes <- POST https://reqres.in/api/login -> 200 (279 ms) | body={"token":"QpwL5tke4Pnpja7X4","_meta":{"powered_by":"ReqRes","docs_url":"https://app.reqres.in/documentation","upgrade_url":"https://app.reqres.in/upgrade","example_url":"https://app.reqres.in/examples/notes-app","variant":"v1_b","message":"This is a read-only demo endpoint. Sign up to create your own collections with full CRUD and auth.","cta":{"label":"Get started","url":"https://app.reqres.in/upgrade"},"context":"legacy_success"}}
-INFO     orangehrm.step:reporting.py:19 ========== STEP: Validate status 200, schema and a non-empty token ==========
-INFO     orangehrm.test.api:test_reqres_api_contract.py:62 Token acquired (17 characters)

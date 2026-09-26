@@ -1,17 +1,17 @@
 {
   "request": {
-    "method": "POST",
-    "url": "https://reqres.in/api/login",
+    "method": "PATCH",
+    "url": "https://reqres.in/api/users/2",
     "body": {
-      "email": "eve.holt@reqres.in",
-      "password": "cityslicka"
+      "job": "zion resident"
     }
   },
   "response": {
     "status": 200,
-    "elapsed_ms": 279,
+    "elapsed_ms": 88,
     "body": {
-      "token": "QpwL5tke4Pnpja7X4",
+      "job": "zion resident",
+      "updatedAt": "2026-09-26T07:57:04.822Z",
       "_meta": {
         "powered_by": "ReqRes",
         "docs_url": "https://app.reqres.in/documentation",
