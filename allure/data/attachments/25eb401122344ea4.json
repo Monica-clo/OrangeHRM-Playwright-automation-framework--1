@@ -9,11 +9,11 @@
   },
   "response": {
     "status": 200,
-    "elapsed_ms": 88,
+    "elapsed_ms": 268,
     "body": {
       "name": "morpheus",
       "job": "zion resident",
-      "updatedAt": "2026-09-27T08:28:50.630Z",
+      "updatedAt": "2026-09-28T08:53:56.202Z",
       "_meta": {
         "powered_by": "ReqRes",
         "docs_url": "https://app.reqres.in/documentation",

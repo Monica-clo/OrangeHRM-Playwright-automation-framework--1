@@ -1,17 +1,20 @@
 {
   "request": {
-    "method": "PATCH",
-    "url": "https://reqres.in/api/users/2",
+    "method": "POST",
+    "url": "https://reqres.in/api/users",
     "body": {
-      "job": "zion resident"
+      "name": "morpheus",
+      "job": "leader"
     }
   },
   "response": {
-    "status": 200,
-    "elapsed_ms": 87,
+    "status": 201,
+    "elapsed_ms": 152,
     "body": {
-      "job": "zion resident",
-      "updatedAt": "2026-09-27T08:28:53.830Z",
+      "name": "morpheus",
+      "job": "leader",
+      "id": "209",
+      "createdAt": "2026-09-28T08:53:52.887Z",
       "_meta": {
         "powered_by": "ReqRes",
         "docs_url": "https://app.reqres.in/documentation",
