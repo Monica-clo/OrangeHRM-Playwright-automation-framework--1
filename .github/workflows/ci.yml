@@ -98,7 +98,7 @@ jobs:
           retention-days: 14
 
   e2e-tests:
-    name: E2E workflows (${{ matrix.browser }}, ${{ inputs.marker || 'workflow' }})
+    name: E2E workflows (${{ matrix.browser }}, ${{ github.event_name == 'workflow_dispatch' && inputs.marker || 'workflow' }})
     needs: [api-tests]
     # UI tests are independent of ReqRes. Run them even when the API job fails.
     if: >-
@@ -112,14 +112,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: ${{ fromJSON(inputs.browsers || '["chromium"]') }}
+        browser: ${{ fromJSON((github.event_name == 'workflow_dispatch' && inputs.browsers) || '["chromium"]') }}
     env:
       BROWSER: ${{ matrix.browser }}
-      MARKER: ${{ inputs.marker || 'workflow' }}
+      MARKER: ${{ github.event_name == 'workflow_dispatch' && inputs.marker || 'workflow' }}
       # Keep this at 1 for the public shared OrangeHRM demo environment.
-      WORKERS: ${{ inputs.workers || '1' }}
-      DATA_SOURCE: ${{ inputs.data_source || 'json' }}
-      ORANGEHRM_BASE_URL: ${{ inputs.base_url }}
+      WORKERS: ${{ github.event_name == 'workflow_dispatch' && inputs.workers || '1' }}
+      DATA_SOURCE: ${{ github.event_name == 'workflow_dispatch' && inputs.data_source || 'json' }}
+      ORANGEHRM_BASE_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.base_url || '' }}
       RECORD_VIDEO: "true"
       TRACING: retain-on-failure
     steps:
@@ -179,7 +179,7 @@ jobs:
           retention-days: 14
 
   performance-tests:
-    name: k6 performance (${{ inputs.perf_profile || 'smoke' }})
+    name: k6 performance (${{ github.event_name == 'workflow_dispatch' && inputs.perf_profile || 'smoke' }})
     if: >-
       ${{ github.event_name == 'schedule' ||
           (github.event_name == 'workflow_dispatch' &&
@@ -191,7 +191,7 @@ jobs:
       - uses: grafana/setup-k6-action@v1
       - name: Run k6 (thresholds decide pass/fail)
         env:
-          PERF_PROFILE: ${{ inputs.perf_profile || 'smoke' }}
+          PERF_PROFILE: ${{ github.event_name == 'workflow_dispatch' && inputs.perf_profile || 'smoke' }}
         run: |
           mkdir -p reports/performance
           k6 run performance/k6/api-performance.js
@@ -201,7 +201,7 @@ jobs:
           echo "### k6 performance" >> "$GITHUB_STEP_SUMMARY"
           echo "Profile: \`${PERF_PROFILE:-smoke}\`. Download the **performance-reports** artifact for \`k6-report.html\`." >> "$GITHUB_STEP_SUMMARY"
         env:
-          PERF_PROFILE: ${{ inputs.perf_profile || 'smoke' }}
+          PERF_PROFILE: ${{ github.event_name == 'workflow_dispatch' && inputs.perf_profile || 'smoke' }}
       - name: Upload k6 reports
         if: always()
         uses: actions/upload-artifact@v4
