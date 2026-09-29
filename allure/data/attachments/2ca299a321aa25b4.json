@@ -9,7 +9,7 @@
   },
   "response": {
     "status": 200,
-    "elapsed_ms": 1047,
+    "elapsed_ms": 282,
     "body": {
       "token": "QpwL5tke4Pnpja7X4",
       "_meta": {
@@ -17,11 +17,11 @@
         "docs_url": "https://app.reqres.in/documentation",
         "upgrade_url": "https://app.reqres.in/upgrade",
         "example_url": "https://app.reqres.in/examples/notes-app",
-        "variant": "v1_b",
-        "message": "This is a read-only demo endpoint. Sign up to create your own collections with full CRUD and auth.",
+        "variant": "v1_a",
+        "message": "Your data persists here. Add auth, logs, and custom schemas to build a real backend.",
         "cta": {
-          "label": "Get started",
-          "url": "https://app.reqres.in/upgrade"
+          "label": "See example app",
+          "url": "https://app.reqres.in/examples/notes-app"
         },
         "context": "legacy_success"
       }
