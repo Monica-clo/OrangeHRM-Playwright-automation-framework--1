@@ -1,27 +1,29 @@
 {
   "request": {
-    "method": "PATCH",
+    "method": "PUT",
     "url": "https://reqres.in/api/users/2",
     "body": {
+      "name": "morpheus",
       "job": "zion resident"
     }
   },
   "response": {
     "status": 200,
-    "elapsed_ms": 115,
+    "elapsed_ms": 269,
     "body": {
+      "name": "morpheus",
       "job": "zion resident",
-      "updatedAt": "2026-09-29T05:51:44.301Z",
+      "updatedAt": "2026-09-29T05:55:32.971Z",
       "_meta": {
         "powered_by": "ReqRes",
         "docs_url": "https://app.reqres.in/documentation",
         "upgrade_url": "https://app.reqres.in/upgrade",
         "example_url": "https://app.reqres.in/examples/notes-app",
-        "variant": "v1_a",
-        "message": "Your data persists here. Add auth, logs, and custom schemas to build a real backend.",
+        "variant": "v1_b",
+        "message": "This is a read-only demo endpoint. Sign up to create your own collections with full CRUD and auth.",
         "cta": {
-          "label": "See example app",
-          "url": "https://app.reqres.in/examples/notes-app"
+          "label": "Get started",
+          "url": "https://app.reqres.in/upgrade"
         },
         "context": "legacy_success"
       }
