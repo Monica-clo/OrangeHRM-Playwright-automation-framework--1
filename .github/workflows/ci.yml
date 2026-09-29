@@ -50,15 +50,19 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
+# OrangeHRM login: the public demo credentials come from config/config.yaml
+# (credentials.username / credentials.password), so no secret is needed here.
+# For a private environment, set ORANGEHRM_USERNAME / ORANGEHRM_PASSWORD env vars.
+#
+# REQRES_API_KEY must exist as a repository secret
+# (GitHub: Settings -> Secrets and variables -> Actions).
 env:
   PYTHON_VERSION: "3.12"
-  # Prefer repo/org variables or GitHub secrets for the demo account. The public
-  # OrangeHRM demo is shared and its credentials can be reset by other users.
-  ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME || vars.ORANGEHRM_USERNAME || 'Admin' }}
-  ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD || vars.ORANGEHRM_PASSWORD || 'admin123' }}
+  ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME || 'Admin' }}
+  ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD || 'admin123' }}
   REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
 
 jobs:
@@ -81,8 +85,10 @@ jobs:
         env:
           REQRES_SKIP_ON_QUOTA: "true"
         run: |
-          python -m pytest -m api --html=reports/html/api-report.html --junitxml=reports/junit/api-results.xml
-      - name: Publish test results
+          python -m pytest -m api \
+            --html=reports/html/api-report.html \
+            --junitxml=reports/junit/api-results.xml
+      - name: Publish API test results
         if: always()
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
@@ -100,26 +106,24 @@ jobs:
   e2e-tests:
     name: E2E workflows (${{ matrix.browser }}, ${{ github.event_name == 'workflow_dispatch' && inputs.marker || 'workflow' }})
     needs: [api-tests]
-    # UI tests are independent of ReqRes. Run them even when the API job fails.
+    # Runs when the API suite passed, and also when it was deliberately skipped
+    # (suite=e2e), but never when the API contract is broken.
     if: >-
       ${{ !cancelled()
-          && (needs.api-tests.result == 'success'
-              || needs.api-tests.result == 'failure'
-              || needs.api-tests.result == 'skipped')
+          && (needs.api-tests.result == 'success' || needs.api-tests.result == 'skipped')
           && (github.event_name != 'workflow_dispatch' || inputs.suite == 'all' || inputs.suite == 'e2e') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
-      fail-fast: false
+      fail-fast: false                                   # parallelisation 1: one job per browser
       matrix:
         browser: ${{ fromJSON((github.event_name == 'workflow_dispatch' && inputs.browsers) || '["chromium"]') }}
     env:
       BROWSER: ${{ matrix.browser }}
-      MARKER: ${{ github.event_name == 'workflow_dispatch' && inputs.marker || 'workflow' }}
-      # Keep this at 1 for the public shared OrangeHRM demo environment.
-      WORKERS: ${{ github.event_name == 'workflow_dispatch' && inputs.workers || '1' }}
-      DATA_SOURCE: ${{ github.event_name == 'workflow_dispatch' && inputs.data_source || 'json' }}
-      ORANGEHRM_BASE_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.base_url || '' }}
+      MARKER: ${{ inputs.marker || 'workflow' }}
+      WORKERS: ${{ inputs.workers || '2' }}              # parallelisation 2: pytest-xdist inside each job
+      DATA_SOURCE: ${{ inputs.data_source || 'json' }}
+      ORANGEHRM_BASE_URL: ${{ inputs.base_url }}
       RECORD_VIDEO: "true"
       TRACING: retain-on-failure
     steps:
@@ -164,7 +168,8 @@ jobs:
             --self-contained-html \
             --junitxml="reports/junit/e2e-results-$BROWSER.xml"
       - name: Publish test results
-        if: always()
+        # fork PRs get a read-only token and cannot create check runs - skip there
+        if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: reports/junit/e2e-results-*.xml

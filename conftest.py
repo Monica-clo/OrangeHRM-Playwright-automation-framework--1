@@ -53,6 +53,30 @@ def _test_failed(node: pytest.Item) -> bool:
     )
 
 
+def _attempt(item: pytest.Item) -> int:
+    """1 for the first run, 2+ for pytest-rerunfailures reruns."""
+    return getattr(item, "execution_count", 1)
+
+
+def _screenshot_extra(png: bytes, title: str):
+    """Failure screenshot as an HTML extra instead of `extras.png(...)`.
+
+    pytest-html 4.x rewrites image extras in place (raw base64 -> "data:image/png;base64,...").
+    With --reruns, every earlier attempt's report is processed again when the next attempt
+    finishes, so the already-converted data URI fails base64 validation and pytest-html prints
+    "Self-contained HTML report includes link to external resource: data:image/png;base64,..."
+    (the whole image dumped into the console). HTML extras are never rewritten, so embedding
+    the data URI ourselves avoids that and still keeps the report fully self-contained.
+    """
+    data_uri = "data:image/png;base64," + base64.b64encode(png).decode("ascii")
+    return pytest_html.extras.html(
+        f'<div class="image"><p><b>{title}</b></p>'
+        f'<a href="{data_uri}" target="_blank" rel="noopener">'
+        f'<img src="{data_uri}" alt="{title}" style="max-width:640px;border:1px solid #ccc"/>'
+        f"</a></div>"
+    )
+
+
 # ============================================================================ hooks
 def _is_xdist_worker(config: pytest.Config) -> bool:
     return hasattr(config, "workerinput")
@@ -107,10 +131,13 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     report = outcome.get_result()
     setattr(item, f"rep_{report.when}", report)
 
-    if report.when != "call":
+    # "call" = the test body; a failed "setup" (e.g. the login fixture) also deserves a screenshot
+    if report.when == "setup" and not report.failed:
+        return
+    if report.when not in ("setup", "call"):
         return
     page: Page | None = item.funcargs.get("page")
-    if page is None:
+    if page is None or page.is_closed():
         return
 
     extras = getattr(report, "extras", [])
@@ -120,7 +147,8 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
             png = page.screenshot(full_page=True)
             (settings.screenshots_dir / f"{_safe_name(item.name)}.png").write_bytes(png)
             if pytest_html:
-                extras.append(pytest_html.extras.png(base64.b64encode(png).decode(), name="Failure screenshot"))
+                # HTML extra instead of extras.png() (avoids the pytest-html rerun warning)
+                extras.append(_screenshot_extra(png, f"Failure screenshot (attempt {_attempt(item)})"))
             if allure:
                 allure.attach(png, name="failure-screenshot", attachment_type=allure.attachment_type.PNG)
         except Exception as exc:  # never hide the real failure

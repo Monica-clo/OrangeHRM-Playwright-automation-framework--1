@@ -5,7 +5,7 @@
 # ---------------------------------------------------------------------------
 
 app:
-  base_url: "https://opensource-demo.orangehrmlive.com"
+  base_url: "https://opensource-demo.orangehrmlive.com"   # host only - login_path / dashboard_path are appended to it
   login_path: "/web/index.php/auth/login"
   dashboard_path: "/web/index.php/dashboard/index"
 
