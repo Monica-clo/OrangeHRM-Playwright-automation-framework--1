@@ -149,6 +149,7 @@ jobs:
           python - <<'PY'
           import os
           import urllib.request
+          import urllib.error
 
           base_url = os.environ.get(
               "ORANGEHRM_BASE_URL",
@@ -156,8 +157,14 @@ jobs:
           ).rstrip("/")
           url = f"{base_url}/web/index.php/auth/login"
           print(f"Checking {url}")
-          response = urllib.request.urlopen(url, timeout=30)
-          print(f"HTTP status: {response.status}")
+          try:
+              response = urllib.request.urlopen(url, timeout=30)
+              print(f"HTTP status: {response.status}")
+          except urllib.error.HTTPError as e:
+              print(f"HTTP status: {e.code}")
+          except urllib.error.URLError as e:
+              print(f"URL Error: {e.reason}")
+              exit(1)
           PY
       - name: Run E2E workflows
         run: |
